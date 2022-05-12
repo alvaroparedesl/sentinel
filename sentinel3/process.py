@@ -67,14 +67,15 @@ for k in files:
       else:
          scenes_dict[key][k] = [v]
    
+exclude = ['latitude', 'longitude']
 
-
-
-scn = Scene(reader='olci_l2', filenames=files)
-
-scn.load(['Oa01'])
-
-newscn = scn.resample(scn['Oa01'].area.compute_optimal_bb_area())
+for k0, v0 in scenes_dict.items():
+   for k1, v1 in v0.items():
+      scn = Scene(reader=k1, filenames=v0)
+      available_scenes = [v for v in scn.all_dataset_names() for f in v1 if v not in exclude and v in f]
+      scn.load(available_scenes)
+      for sc in available_scenes:
+         newscn = scn.resample(scn[sc].area.compute_optimal_bb_area())
 newscn.save_datasets(writer='geotiff', base_dir='data/out', compress='LZW')
 
 scn.all_dataset_names()
